@@ -1,0 +1,19 @@
+--
+all:
+  children:      
+    raspberryO:
+      hosts:
+         rasp: 
+           ansible_host: "192.168.1.67"
+           ansible_user: "pi"
+         raspberrypi2:
+           ansible_host: "192.168.1.67"
+           ansible_user: "pi"
+    raspberryfarm:
+      hosts:
+         raspfarm: 
+           ansible_host: "192.168.1.67"
+           ansible_user: "pi"
+         raspberrypi2farm:
+           ansible_host: "192.168.1.67"
+           ansible_user: "pi"
