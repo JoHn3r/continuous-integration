@@ -1,0 +1,60 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: ElasticSearch Service
+Parameters:
+  Team:
+    Type: String
+  Env:
+    Type: String
+  DataDevAccount:
+    Type: String
+  VpcName:
+    Type: String
+    Default: vpc2
+  SeLogerOfficeCidrIp:
+    Type: String
+  SeLogerOfficeCidrWifiIp:
+    Type: String
+  DatahubPolirisDomain:
+    Type: String
+  GitRevision:
+    Type: String
+Resources:
+  stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ../../../../templates/es-svc/main.yml
+      Parameters:
+        AccountId: !Ref 'DataDevAccount'
+        DomainUrlName: !Sub '${Env}.${DatahubPolirisDomain}'
+        SubDomainUrlName: es-svc-slplus
+        EsName: es-slplus
+        VpcId:
+          Fn::ImportValue: !Sub '${Team}-${Env}-${VpcName}-VpcId'
+        SubnetIds:
+          Fn::Join:
+            - ','
+            - - Fn::ImportValue: !Sub '${Team}-${Env}-${VpcName}-PrivateSubnetAZ1'
+              - Fn::ImportValue: !Sub '${Team}-${Env}-${VpcName}-PrivateSubnetAZ2'
+        IngressCidrList:
+          Fn::Join:
+            - ','
+            - - !Ref 'SeLogerOfficeCidrIp'
+              - !Ref 'SeLogerOfficeCidrWifiIp'
+              - 10.0.0.0/8
+              - empty
+        ESVersion: 6.3
+        DedicatedMasterCount: 3
+        ESMasterInstanceType: t2.medium.elasticsearch
+        InstanceCount: 2
+        ESInstanceType: m4.large.elasticsearch
+        VolumeSize: 500
+        ZoneAwarenessEnabled: true
+      Tags:
+        - Key: Stack
+          Value: !Ref 'AWS::StackName'
+        - Key: Cost
+          Value: Development
+Outputs:
+  GitRevision:
+    Value: !Ref 'GitRevision'

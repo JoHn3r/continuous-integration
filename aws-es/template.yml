@@ -1,0 +1,142 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  Region:
+    Type: String
+    Default: eu-west-1
+  EsName:
+    Type: String
+  SubDomainUrlName:
+    Type: String
+  DomainUrlName:
+    Type: String
+  AccountId:
+    Type: Number
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  IngressCidrList:
+    Type: List<String>
+  ESVersion:
+    Type: String
+    Default: 6.3
+  DedicatedMasterCount:
+    Type: Number
+    Default: 3
+  ESMasterInstanceType:
+    Type: String
+    Default: t2.medium.elasticsearch
+  InstanceCount:
+    Type: Number
+    Default: 1
+  ESInstanceType:
+    Type: String
+    Default: t2.medium.elasticsearch
+  VolumeSize:
+    Type: Number
+    Default: 10
+  ZoneAwarenessEnabled:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+  AutomatedSnapshotStartHour:
+    Type: Number
+    Default: 0
+Conditions:
+  Cidr0Exists: !Not [!Equals [!Select [0, !Ref 'IngressCidrList'], empty]]
+  Cidr1Exists: !Not [!Equals [!Select [1, !Ref 'IngressCidrList'], empty]]
+  Cidr2Exists: !Not [!Equals [!Select [2, !Ref 'IngressCidrList'], empty]]
+  Cidr3Exists: !Not [!Equals [!Select [3, !Ref 'IngressCidrList'], empty]]
+Resources:
+  ESDomain:
+    Type: "AWS::Elasticsearch::Domain"
+    Properties:
+      ElasticsearchVersion: !Ref 'ESVersion'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref 'InstanceCount'
+        InstanceType: !Ref 'ESInstanceType'
+        DedicatedMasterEnabled: true
+        DedicatedMasterType: !Ref 'ESMasterInstanceType'
+        DedicatedMasterCount: !Ref 'DedicatedMasterCount'
+        ZoneAwarenessEnabled: !Ref 'ZoneAwarenessEnabled'
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: es:*
+            Resource: !Sub 'arn:aws:es:${Region}:${AccountId}:domain/*'
+      EBSOptions:
+        EBSEnabled: true
+        Iops: 0
+        VolumeSize: !Ref 'VolumeSize'
+        VolumeType: gp2
+      VPCOptions:
+        SubnetIds: !Ref 'SubnetIds'
+        SecurityGroupIds:
+          - !Ref 'ESSecurityGroup'
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: !Ref 'AutomatedSnapshotStartHour'
+      Tags:
+        - Key: 'Name'
+          Value: !Sub '${EsName}-es-svc'
+  ESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${EsName}-es-sg'
+      GroupDescription: Security Group for ElasticSearch
+      VpcId: !Ref 'VpcId'
+      SecurityGroupIngress:
+        - Fn::If:
+            - 'Cidr0Exists'
+            - IpProtocol: tcp
+              FromPort: 80
+              ToPort: 80
+              CidrIp: !Select [0, !Ref 'IngressCidrList']
+            - !Ref 'AWS::NoValue'
+        - Fn::If:
+            - 'Cidr1Exists'
+            - IpProtocol: tcp
+              FromPort: 80
+              ToPort: 80
+              CidrIp: !Select [1, !Ref 'IngressCidrList']
+            - !Ref 'AWS::NoValue'
+        - Fn::If:
+            - 'Cidr2Exists'
+            - IpProtocol: tcp
+              FromPort: 80
+              ToPort: 80
+              CidrIp: !Select [2, !Ref 'IngressCidrList']
+            - !Ref 'AWS::NoValue'
+        - Fn::If:
+            - 'Cidr3Exists'
+            - IpProtocol: tcp
+              FromPort: 80
+              ToPort: 80
+              CidrIp: !Select [3, !Ref 'IngressCidrList']
+            - !Ref 'AWS::NoValue'
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EsName}-es-sg'
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub '${DomainUrlName}.'
+      Comment: DNS name for my ES
+      Name: !Sub '${SubDomainUrlName}.${DomainUrlName}.'
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt 'ESDomain.DomainEndpoint'
+Outputs:
+  ESArn:
+    Value: !GetAtt 'ESDomain.DomainArn'
+  ESEndpoint:
+    Value: !GetAtt 'ESDomain.DomainEndpoint'

@@ -1,0 +1,67 @@
+{
+    "Parameters": [
+        {
+            "ParameterKey": "AccountId"
+        },
+        {
+            "ParameterKey": "ESMasterInstanceType",
+            "ParameterValue": "t2.medium.elasticsearch"
+        },
+        {
+            "ParameterKey": "ESVersion",
+            "ParameterValue": "6.3"
+        },
+        {
+            "ParameterKey": "ESInstanceType",
+            "ParameterValue": "t2.medium.elasticsearch"
+        },
+        {
+            "ParameterKey": "SubnetIds",
+            "ParameterKey": "DomainUrlName"
+        },
+        {
+            "ParameterKey": "EsName",
+            "ParameterKey": "sl-search-managed-dev"
+        },
+        {
+            "ParameterKey": "InstanceCount",
+            "ParameterValue": "1"
+        },
+        {
+            "ParameterKey": "SubDomainUrlName",
+            "ParameterKey": "DomainUrlName"
+        },
+        {
+            "ParameterKey": "VpcId",
+            "ParameterKey": "DomainUrlName"
+        },
+        {
+            "ParameterKey": "IngressCidrList",
+            "ParameterKey": "DomainUrlName"
+        },
+        {
+            "ParameterKey": "Region",
+            "ParameterValue": "eu-west-1"
+        },
+        {
+            "ParameterKey": "DomainUrlName",
+            "ParameterKey": "DomainUrlName"
+        },
+        {
+            "ParameterKey": "DedicatedMasterCount",
+            "ParameterValue": "3"
+        },
+        {
+            "ParameterKey": "VolumeSize",
+            "ParameterValue": "10"
+        },
+        {
+            "ParameterKey": "ZoneAwarenessEnabled",
+            "ParameterValue": "true"
+        },
+        {
+            "ParameterKey": "AutomatedSnapshotStartHour",
+            "ParameterValue": "0"
+        }
+    ]
+}
