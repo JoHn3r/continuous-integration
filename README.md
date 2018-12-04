@@ -11,7 +11,12 @@ With another file :
 
 docker run --rm -it -v ${pw}):/ansible/playbooks continous-integration/ansible-docker:0.0.1 ./playbooks/playbook-apache
 
+#####################
 
+Certif
+
+openssl rsa -noout -modulus -in .\EV-amivac.com-decembre2018.key | openssl md5 ; openssl x509 -noout -modulus -in .\EV-amivac.com-decembre2
+018.cer | openssl md5 ; openssl req -noout -modulus -in .\EV-amivac.com-decembre2018.csr | openssl md5
 
 #####################
 - hosts: pchr-elk-ce7410
