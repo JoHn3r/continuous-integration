@@ -32,3 +32,5 @@ openssl rsa -noout -modulus -in .\EV-amivac.com-decembre2018.key | openssl md5 ;
 
 
 ####################
+
+https://jenkins.seloger.tools/pipeline-syntax/
